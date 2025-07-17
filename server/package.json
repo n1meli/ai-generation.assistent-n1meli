@@ -1,0 +1,4 @@
+{
+  "name": "server",
+  "scripts": { "start": "node server.js" }
+}

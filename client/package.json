@@ -1,0 +1,4 @@
+{
+  "name": "client",
+  "scripts": { "dev": "vite" }
+}
