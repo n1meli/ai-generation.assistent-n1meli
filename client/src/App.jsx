@@ -55,7 +55,7 @@ function App() {
             type="text"
             value={queueIds}
             onChange={(e) => setQueueIds(e.target.value)}
-            placeholder="e.g., 1,5,17..."
+                          placeholder="e.g., 1,5,17..."
           />
 
           <label>Topic reference</label>
