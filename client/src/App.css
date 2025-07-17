@@ -1,0 +1,14 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  font-family: sans-serif;
+}
+
+textarea {
+  outline: none;
+}
+
+button:hover {
+  background-color: #45a049;
+}
