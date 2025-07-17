@@ -1,21 +1,29 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const { Configuration, OpenAIApi } = require('openai');
+
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-app.post('/generate', async (req, res) => {
-  const { prompt } = req.body;
+const openai = new OpenAIApi(new Configuration({
+  apiKey: process.env.OPENAI_API_KEY,
+}));
 
-  // Тут встав API-запит до OpenAI або просто тестовий текст
-  const story = `Історія на тему: "${prompt}"\nЦе тестова відповідь AI.`;
-
-  res.json({ story });
+app.post('/generate-text', async (req, res) => {
+  try {
+    const { topic } = req.body;
+    const response = await openai.createChatCompletion({
+      model: 'gpt-4o',
+      messages: [{ role: 'user', content: `Напиши історію на тему: ${topic}` }]
+    });
+    const story = response.data.choices[0].message.content;
+    res.json({ story });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Generation failed' });
+  }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-// Express backend placeholder
+app.listen(5000, () => console.log('Server running on http://localhost:5000'));
