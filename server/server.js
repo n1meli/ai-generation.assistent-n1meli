@@ -1,49 +1,75 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { generateStory } from './openai.js';
-import { generateImage } from './sdxl.js';
-import { generateVoice } from './voice.js';
-
-dotenv.config();
+// server/server.js
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const axios = require('axios');
 const app = express();
+const port = 3001;
+
+require('dotenv').config();
+
 app.use(cors());
-app.use(express.json());
+app.use(bodyParser.json());
 
-// 🔹 Генерація історії
-app.post('/api/story', async (req, res) => {
+app.post('/generate', async (req, res) => {
+  const {
+    queueIds,
+    topicRef,
+    transcription,
+    storyTopic,
+    finished,
+    geoReplace,
+    test,
+    refId,
+    refType,
+    geo,
+    voice,
+    bgMusic
+  } = req.body;
+
   try {
-    const { prompt } = req.body;
-    const result = await generateStory(prompt);
-    res.json({ result });
-  } catch (err) {
-    res.status(500).json({ error: 'Story generation error' });
+    // Generate story text
+    const openaiResponse = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are a helpful story generator.' },
+        { role: 'user', content: `Write a story based on this topic: ${storyTopic}. Transcription: ${transcription}` }
+      ]
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const story = openaiResponse.data.choices[0].message.content;
+
+    // Generate image (HuggingFace)
+    const imagePrompt = `Illustration for the story: ${storyTopic}`;
+    const imageResponse = await axios.post(
+      'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2',
+      { inputs: imagePrompt },
+      { headers: { Authorization: `Bearer ${process.env.HF_API_KEY}` } }
+    );
+
+    const imageBase64 = imageResponse.data?.[0]?.image ?? null;
+
+    // Text to Speech (Edge TTS)
+    const edgeVoice = voice === 'female' ? 'en-US-JennyNeural' : 'en-US-GuyNeural';
+    const ttsText = encodeURIComponent(story);
+    const audioUrl = `https://speech.platform.bing.com/synthesize?voice=${edgeVoice}&text=${ttsText}`;
+
+    res.json({
+      story,
+      image: imageBase64,
+      audioUrl
+    });
+  } catch (error) {
+    console.error('Generation error:', error.message);
+    res.status(500).json({ error: 'Generation failed', details: error.message });
   }
 });
 
-// 🔹 Генерація зображення
-app.post('/api/image', async (req, res) => {
-  try {
-    const { prompt } = req.body;
-    const result = await generateImage(prompt);
-    res.json({ result });
-  } catch (err) {
-    res.status(500).json({ error: 'Image generation error' });
-  }
-});
-
-// 🔹 Озвучка
-app.post('/api/voice', async (req, res) => {
-  try {
-    const { text, voice, language } = req.body;
-    const audioUrl = await generateVoice(text, voice, language);
-    res.json({ audioUrl });
-  } catch (err) {
-    res.status(500).json({ error: 'Voice generation error' });
-  }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log('Server started on port', PORT);
+app.listen(port, () => {
+  console.log(`Server listening on http://localhost:${port}`);
 });
