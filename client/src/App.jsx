@@ -48,34 +48,37 @@ function App() {
   };
 
   return (
-    <div className="page-wrapper">
-      <div className="top-buttons">
-        <button className="orange">Queue</button>
-        <button>Stop</button>
-        <button>Continue</button>
-        <button className="red">🔴</button>
-        <button className="orange">STORY</button>
-        <button className="gray">T</button>
-      </div>
-
-      <div className="form-grid">
-        <div className="primary-inputs">
+    <div className="form-wrapper">
+      <div className="form-row">
+        <div className="form-section">
           <h3>Primary Inputs</h3>
+          <label>Queue of queues IDs</label>
           <input type="text" placeholder="e.g., 1,5,17..." value={queueIds} onChange={(e) => setQueueIds(e.target.value)} />
+
+          <label>Topic reference</label>
           <input type="text" placeholder="Enter topic reference" value={topicRef} onChange={(e) => setTopicRef(e.target.value)} />
+
+          <label>Transcription</label>
           <textarea placeholder="Enter transcription" value={transcription} onChange={(e) => setTranscription(e.target.value)} />
         </div>
 
-        <div className="additional-settings">
+        <div className="form-section">
           <h3>Additional Settings</h3>
+          <label>Story Topic</label>
           <input type="text" placeholder="Enter story topic" value={storyTopic} onChange={(e) => setStoryTopic(e.target.value)} />
-          <div className="checkbox-group">
+
+          <div className="checkboxes">
             <label><input type="checkbox" checked={finished} onChange={() => setFinished(!finished)} /> Finished</label>
             <label><input type="checkbox" checked={geoReplace} onChange={() => setGeoReplace(!geoReplace)} /> Geo replace</label>
             <label><input type="checkbox" checked={test} onChange={() => setTest(!test)} /> Test</label>
           </div>
+
+          <label>Reference ID</label>
           <input type="text" placeholder="Ref. ID" value={refId} onChange={(e) => setRefId(e.target.value)} />
+
+          <label>Reference Type</label>
           <input type="text" placeholder="Ref. Type" value={refType} onChange={(e) => setRefType(e.target.value)} />
+
           <select value={geo} onChange={(e) => setGeo(e.target.value)}>
             <option value="">Choose geo</option>
             <option value="es">Spanish</option>
@@ -94,11 +97,13 @@ function App() {
             <option value="el">Greek</option>
             <option value="id">Indonesian</option>
           </select>
+
           <select value={voice} onChange={(e) => setVoice(e.target.value)}>
             <option value="">Select voice</option>
             <option value="female">Female</option>
             <option value="male">Male</option>
           </select>
+
           <select value={bgMusic} onChange={(e) => setBgMusic(e.target.value)}>
             <option value="">Choose a background music</option>
             <option value="calm">Calm</option>
