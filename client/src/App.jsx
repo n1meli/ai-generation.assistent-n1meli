@@ -68,10 +68,22 @@ function App() {
         <input type="text" placeholder="Ref. Type" value={refType} onChange={(e) => setRefType(e.target.value)} />
         <select value={geo} onChange={(e) => setGeo(e.target.value)}>
           <option value="">Choose geo</option>
-          <option value="UA">Ukraine</option>
-          <option value="ES">Spain</option>
-          <option value="KR">Korea</option>
-        </select>
+          <option value="es">Spanish</option>
+  <option value="ru">Russian</option>
+  <option value="fr">French</option>
+  <option value="pt">Portuguese</option>
+  <option value="it">Italian</option>
+  <option value="de">German</option>
+  <option value="ja">Japanese</option>
+  <option value="pl">Polish</option>
+  <option value="ar">Arabic</option>
+  <option value="tr">Turkish</option>
+  <option value="ro">Romanian</option>
+  <option value="ko">Korean</option>
+  <option value="nl">Dutch</option>
+  <option value="el">Greek</option>
+  <option value="id">Indonesian</option>
+</select>
         <select value={voice} onChange={(e) => setVoice(e.target.value)}>
           <option value="">Select voice</option>
           <option value="female">Female</option>
