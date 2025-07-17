@@ -1,42 +1,69 @@
 body {
-  background-color: #1e1e2f;
-  color: #fff;
+  background-color: #121222;
+  color: white;
   font-family: sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
 }
 
-input, select, textarea {
-  display: block;
-  width: 100%;
-  margin-bottom: 10px;
-  padding: 8px;
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #1e1e2f;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.block h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+input, textarea, select {
+  background-color: #25253d;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.checkboxes {
+  display: flex;
+  gap: 15px;
+}
+
+.checkboxes label {
+  font-size: 14px;
+}
+
+.actions {
+  text-align: center;
 }
 
 button {
-  margin: 5px;
-  padding: 6px 12px;
-  background: #007bff;
-  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #0a84ff;
   color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
-button:hover {
-  background: #0056b3;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-table, th, td {
-  border: 1px solid #444;
-  padding: 8px;
+button:disabled {
+  background-color: #555;
+  cursor: wait;
 }
