@@ -1,15 +1,16 @@
 {
-  "name": "server",
+  "name": "ai-story-client",
   "version": "1.0.0",
-  "type": "module",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "dev": "vite",
+    "build": "vite build"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "axios": "^1.6.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5"
+    "axios": "^1.6.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.10"
   }
 }
