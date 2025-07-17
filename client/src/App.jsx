@@ -1,102 +1,110 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import axios from 'axios';
 
 export default function App() {
-  const [queueIds, setQueueIds] = useState('');
-  const [topicRef, setTopicRef] = useState('');
-  const [transcription, setTranscription] = useState('');
   const [storyTopic, setStoryTopic] = useState('');
-  const [finished, setFinished] = useState(false);
-  const [geoReplace, setGeoReplace] = useState(false);
-  const [test, setTest] = useState(false);
-  const [refId, setRefId] = useState('');
-  const [refType, setRefType] = useState('');
+  const [transcription, setTranscription] = useState('');
   const [geo, setGeo] = useState('');
   const [voice, setVoice] = useState('');
   const [music, setMusic] = useState('');
+  const [generatedStory, setGeneratedStory] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerate = () => {
-    // тут буде логіка генерації
-    alert('Генерація запущена!');
+  const handleGenerate = async () => {
+    setIsGenerating(true);
+    try {
+      const { data } = await axios.post('/api/generate', {
+        storyTopic,
+        transcription,
+        geo,
+        voice,
+        music,
+      });
+      setGeneratedStory(data.story);
+    } catch (error) {
+      alert('Story generation failed');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleImage = async () => {
+    try {
+      const { data } = await axios.post('/api/image', { story: generatedStory, geo });
+      setImageUrl(data.imageUrl);
+    } catch (error) {
+      alert('Image generation failed');
+    }
+  };
+
+  const handleVoice = async () => {
+    try {
+      const { data } = await axios.post('/api/voice', {
+        text: generatedStory,
+        voice,
+      });
+      const audio = new Audio(data.audioUrl);
+      audio.play();
+    } catch (error) {
+      alert('Voice generation failed');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white p-6 font-sans">
-      <div className="flex gap-3 mb-4">
-        <Button variant="destructive">Queue</Button>
-        <Button variant="secondary">Stop</Button>
-        <Button variant="secondary">Continue</Button>
-        <Button variant="default" className="bg-orange-600">STORY</Button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-8">
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Primary Inputs</h2>
-          <input className="w-full mb-2 p-2 rounded bg-zinc-800" placeholder="Queue of queues IDs" value={queueIds} onChange={e => setQueueIds(e.target.value)} />
-          <input className="w-full mb-2 p-2 rounded bg-zinc-800" placeholder="Topic reference" value={topicRef} onChange={e => setTopicRef(e.target.value)} />
-          <textarea className="w-full p-2 h-32 rounded bg-zinc-800" placeholder="Enter transcription" value={transcription} onChange={e => setTranscription(e.target.value)} />
+    <div className="min-h-screen bg-[#151b28] text-white p-4">
+      <div className="mb-6 text-center text-2xl font-bold">AI Story App</div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Story Topic"
+            value={storyTopic}
+            onChange={(e) => setStoryTopic(e.target.value)}
+            className="w-full p-2 rounded bg-gray-800"
+          />
+          <textarea
+            placeholder="Transcription"
+            value={transcription}
+            onChange={(e) => setTranscription(e.target.value)}
+            className="w-full p-2 rounded bg-gray-800 h-32"
+          />
+          <select onChange={(e) => setGeo(e.target.value)} className="w-full p-2 rounded bg-gray-800">
+            <option>Choose geo</option>
+            <option value="uk">Ukraine</option>
+            <option value="es">Spain</option>
+          </select>
+          <select onChange={(e) => setVoice(e.target.value)} className="w-full p-2 rounded bg-gray-800">
+            <option>Select voice</option>
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+          </select>
+          <select onChange={(e) => setMusic(e.target.value)} className="w-full p-2 rounded bg-gray-800">
+            <option>Choose a background music</option>
+            <option value="soft">Soft</option>
+            <option value="epic">Epic</option>
+          </select>
         </div>
-
-        <div>
-          <h2 className="text-lg font-semibold mb-2">Additional Settings</h2>
-          <input className="w-full mb-2 p-2 rounded bg-zinc-800" placeholder="Story Topic" value={storyTopic} onChange={e => setStoryTopic(e.target.value)} />
-          <div className="flex items-center gap-4 mb-2">
-            <label><input type="checkbox" checked={finished} onChange={() => setFinished(!finished)} /> Finished</label>
-            <label><input type="checkbox" checked={geoReplace} onChange={() => setGeoReplace(!geoReplace)} /> Geo replace</label>
-            <label><input type="checkbox" checked={test} onChange={() => setTest(!test)} /> Test</label>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <input className="p-2 rounded bg-zinc-800" placeholder="Ref. ID" value={refId} onChange={e => setRefId(e.target.value)} />
-            <input className="p-2 rounded bg-zinc-800" placeholder="Ref. Type" value={refType} onChange={e => setRefType(e.target.value)} />
-            <select className="p-2 rounded bg-zinc-800" value={geo} onChange={e => setGeo(e.target.value)}>
-              <option value="">Choose geo</option>
-              <option value="UA">Ukraine</option>
-              <option value="ES">Spain</option>
-            </select>
-            <select className="p-2 rounded bg-zinc-800" value={voice} onChange={e => setVoice(e.target.value)}>
-              <option value="">Select voice</option>
-              <option value="female">Female</option>
-              <option value="male">Male</option>
-            </select>
-            <select className="col-span-2 p-2 rounded bg-zinc-800" value={music} onChange={e => setMusic(e.target.value)}>
-              <option value="">Choose a background music</option>
-              <option value="calm">Calm</option>
-              <option value="tense">Tense</option>
-            </select>
-          </div>
+        <div className="space-y-4">
+          <button
+            onClick={handleGenerate}
+            className="w-full p-3 bg-orange-500 rounded hover:bg-orange-600"
+          >
+            {isGenerating ? 'Generating...' : 'Generate Story'}
+          </button>
+          <button onClick={handleImage} className="w-full p-3 bg-blue-600 rounded hover:bg-blue-700">
+            Generate Image
+          </button>
+          <button onClick={handleVoice} className="w-full p-3 bg-green-600 rounded hover:bg-green-700">
+            Play Voice
+          </button>
+          {generatedStory && (
+            <div className="p-4 bg-gray-900 rounded text-sm whitespace-pre-wrap">
+              {generatedStory}
+            </div>
+          )}
+          {imageUrl && <img src={imageUrl} alt="Generated" className="rounded w-full" />}
         </div>
-      </div>
-
-      <div className="mt-6">
-        <Button onClick={handleGenerate} className="w-full bg-blue-600 text-white text-lg py-3">Згенерувати</Button>
-      </div>
-
-      <div className="mt-8">
-        <h3 className="text-md font-bold mb-2">Story History</h3>
-        <table className="w-full text-sm bg-zinc-800 rounded overflow-hidden">
-          <thead>
-            <tr className="bg-zinc-700">
-              <th className="p-2">ID</th>
-              <th className="p-2">Date</th>
-              <th className="p-2">Topic</th>
-              <th className="p-2">Finished</th>
-              <th className="p-2">Geo</th>
-              <th className="p-2">Test</th>
-              <th className="p-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="p-2">157</td>
-              <td className="p-2">17/07/2025</td>
-              <td className="p-2">Su mano tocó mi rodilla...</td>
-              <td className="p-2">No</td>
-              <td className="p-2">No</td>
-              <td className="p-2">No</td>
-              <td className="p-2"><Button size="sm">Apply</Button> <Button size="sm" variant="destructive">Delete</Button></td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   );
