@@ -14,10 +14,8 @@ function App() {
   const [geo, setGeo] = useState('');
   const [voice, setVoice] = useState('');
   const [bgMusic, setBgMusic] = useState('');
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    setLoading(true);
     const payload = {
       queueIds,
       topicRef,
@@ -39,33 +37,52 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+
       const data = await res.json();
       alert('Success: ' + JSON.stringify(data));
     } catch (err) {
       alert('Error generating: ' + err.message);
     }
-    setLoading(false);
   };
 
   return (
-    <div className="form-wrapper">
-      <div className="form-row">
-        <div className="form-section">
-          <h3>Primary Inputs</h3>
+    <div className="container">
+      <div className="form-sections">
+                                                                         <div className="primary-inputs">
+          <h2>Primary Inputs</h2>
           <label>Queue of queues IDs</label>
-          <input type="text" placeholder="e.g., 1,5,17..." value={queueIds} onChange={(e) => setQueueIds(e.target.value)} />
+          <input
+            type="text"
+            value={queueIds}
+            onChange={(e) => setQueueIds(e.target.value)}
+            placeholder="e.g., 1,5,17..."
+          />
 
           <label>Topic reference</label>
-          <input type="text" placeholder="Enter topic reference" value={topicRef} onChange={(e) => setTopicRef(e.target.value)} />
+          <input
+            type="text"
+            value={topicRef}
+            onChange={(e) => setTopicRef(e.target.value)}
+            placeholder="Enter topic reference"
+          />
 
           <label>Transcription</label>
-          <textarea placeholder="Enter transcription" value={transcription} onChange={(e) => setTranscription(e.target.value)} />
+          <textarea
+            value={transcription}
+            onChange={(e) => setTranscription(e.target.value)}
+            placeholder="Enter transcription"
+          />
         </div>
 
-        <div className="form-section">
-          <h3>Additional Settings</h3>
+        <div className="additional-settings">
+          <h2>Additional Settings</h2>
           <label>Story Topic</label>
-          <input type="text" placeholder="Enter story topic" value={storyTopic} onChange={(e) => setStoryTopic(e.target.value)} />
+          <input
+            type="text"
+            value={storyTopic}
+            onChange={(e) => setStoryTopic(e.target.value)}
+            placeholder="Enter story topic"
+          />
 
           <div className="checkboxes">
             <label><input type="checkbox" checked={finished} onChange={() => setFinished(!finished)} /> Finished</label>
@@ -73,11 +90,20 @@ function App() {
             <label><input type="checkbox" checked={test} onChange={() => setTest(!test)} /> Test</label>
           </div>
 
-          <label>Reference ID</label>
-          <input type="text" placeholder="Ref. ID" value={refId} onChange={(e) => setRefId(e.target.value)} />
-
-          <label>Reference Type</label>
-          <input type="text" placeholder="Ref. Type" value={refType} onChange={(e) => setRefType(e.target.value)} />
+          <div className="ref-group">
+            <input
+              type="text"
+              value={refId}
+              onChange={(e) => setRefId(e.target.value)}
+              placeholder="Ref. ID"
+            />
+            <input
+              type="text"
+              value={refType}
+              onChange={(e) => setRefType(e.target.value)}
+              placeholder="Ref. Type"
+            />
+          </div>
 
           <select value={geo} onChange={(e) => setGeo(e.target.value)}>
             <option value="">Choose geo</option>
@@ -113,8 +139,8 @@ function App() {
         </div>
       </div>
 
-      <div className="actions">
-        <button onClick={handleSubmit} disabled={loading}>{loading ? 'Generating...' : 'Generate'}</button>
+      <div className="generate-btn">
+        <button onClick={handleSubmit}>Generate</button>
       </div>
     </div>
   );
