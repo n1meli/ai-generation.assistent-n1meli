@@ -19,14 +19,25 @@ function App() {
   const handleSubmit = async () => {
     setLoading(true);
     const payload = {
-      queueIds, topicRef, transcription, storyTopic,
-      finished, geoReplace, test, refId, refType, geo, voice, bgMusic
+      queueIds,
+      topicRef,
+      transcription,
+      storyTopic,
+      finished,
+      geoReplace,
+      test,
+      refId,
+      refType,
+      geo,
+      voice,
+      bgMusic,
     };
+
     try {
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       alert('Success: ' + JSON.stringify(data));
@@ -38,30 +49,37 @@ function App() {
 
   return (
     <div className="container">
-      <div className="grid">
-        <div className="section">
+      <div className="section">
+        <div className="column">
           <h2>Primary Inputs</h2>
           <label>Queue of queues IDs</label>
           <input type="text" value={queueIds} onChange={(e) => setQueueIds(e.target.value)} placeholder="e.g., 1,5,17..." />
+
           <label>Topic reference</label>
           <input type="text" value={topicRef} onChange={(e) => setTopicRef(e.target.value)} placeholder="Enter topic reference" />
+
           <label>Transcription</label>
           <textarea value={transcription} onChange={(e) => setTranscription(e.target.value)} placeholder="Enter transcription" />
         </div>
-        <div className="section">
+
+        <div className="column">
           <h2>Additional Settings</h2>
           <label>Story Topic</label>
           <input type="text" value={storyTopic} onChange={(e) => setStoryTopic(e.target.value)} placeholder="Enter story topic" />
+
           <div className="checkboxes">
             <label><input type="checkbox" checked={finished} onChange={() => setFinished(!finished)} /> Finished</label>
             <label><input type="checkbox" checked={geoReplace} onChange={() => setGeoReplace(!geoReplace)} /> Geo replace</label>
             <label><input type="checkbox" checked={test} onChange={() => setTest(!test)} /> Test</label>
           </div>
-          <div className="row">
-            <input type="text" value={refId} onChange={(e) => setRefId(e.target.value)} placeholder="Ref. ID" />
-            <input type="text" value={refType} onChange={(e) => setRefType(e.target.value)} placeholder="Ref. Type" />
-          </div>
-          <div className="row">
+
+          <label>Reference ID</label>
+          <input type="text" value={refId} onChange={(e) => setRefId(e.target.value)} placeholder="Ref. ID" />
+
+          <label>Reference Type</label>
+          <input type="text" value={refType} onChange={(e) => setRefType(e.target.value)} placeholder="Ref. Type" />
+
+          <div className="inline-selects">
             <select value={geo} onChange={(e) => setGeo(e.target.value)}>
               <option value="">Choose geo</option>
               <option value="es">Spanish</option>
@@ -80,12 +98,14 @@ function App() {
               <option value="el">Greek</option>
               <option value="id">Indonesian</option>
             </select>
+
             <select value={voice} onChange={(e) => setVoice(e.target.value)}>
               <option value="">Select voice</option>
               <option value="female">Female</option>
               <option value="male">Male</option>
             </select>
           </div>
+
           <select value={bgMusic} onChange={(e) => setBgMusic(e.target.value)}>
             <option value="">Choose a background music</option>
             <option value="calm">Calm</option>
@@ -94,12 +114,14 @@ function App() {
           </select>
         </div>
       </div>
+
       <div className="actions">
-        <button onClick={handleSubmit} disabled={loading}>{loading ? 'Generating...' : 'Generate'}</button>
+        <button onClick={handleSubmit} disabled={loading}>
+          {loading ? 'Generating...' : 'Generate'}
+        </button>
       </div>
     </div>
   );
 }
 
 export default App;
-"""
