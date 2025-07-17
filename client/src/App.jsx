@@ -32,7 +32,7 @@ export default function App() {
       setOutput(data.result || 'No result');
     } catch (err) {
       console.error(err);
-      setOutput('Помилка генерації');
+      setOutput('ВАТА ФАК');
     }
   };
 
