@@ -3,135 +3,132 @@ import axios from "axios";
 
 export default function App() {
   const [topic, setTopic] = useState("");
-  const [language, setLanguage] = useState("Spanish");
-  const [voice, setVoice] = useState("female");
-  const [music, setMusic] = useState("None");
-  const [geo, setGeo] = useState("Spain");
-  const [transcription, setTranscription] = useState("");
+  const [geo, setGeo] = useState("");
+  const [voice, setVoice] = useState("");
+  const [gender, setGender] = useState("female");
   const [story, setStory] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const generateText = async () => {
+  const generateAll = async () => {
+    if (!topic || !geo || !voice || !gender) return alert("Please fill all fields");
+
     try {
-      const res = await axios.post("/api/generate", {
+      setLoading(true);
+
+      const textRes = await axios.post("/api/generate", {
         topic,
-        language,
         geo,
-        transcription,
+        gender
       });
-      setStory(res.data.story);
-    } catch (err) {
-      alert("Text generation failed");
-    }
-  };
+      const storyText = textRes.data.story;
+      setStory(storyText);
 
-  const generateImage = async () => {
-    try {
-      const res = await axios.post("/api/image", {
-        story,
-        geo,
-        language,
+      const imageRes = await axios.post("/api/image", {
+        story: storyText,
+        geo
       });
-      setImageUrl(res.data.imageUrl);
-    } catch (err) {
-      alert("Image generation failed");
-    }
-  };
+      setImageUrl(imageRes.data.url);
 
-  const generateVoice = async () => {
-    try {
-      const res = await axios.post("/api/voice", {
-        story,
+      const voiceRes = await axios.post("/api/voice", {
+        text: storyText,
         voice,
+        gender
       });
-      setAudioUrl(res.data.audioUrl);
+      setAudioUrl(voiceRes.data.url);
+
     } catch (err) {
-      alert("Voice generation failed");
+      console.error("Generation error:", err);
+      alert("Something went wrong. Check console.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white p-4">
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Primary Inputs</h2>
+    <div className="min-h-screen bg-neutral-900 text-white p-6">
+      <h1 className="text-lg font-semibold mb-4">Story Generator</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
           <input
-            className="w-full mb-2 p-2 bg-neutral-800"
-            placeholder="Story topic"
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded"
+            placeholder="Enter story topic"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
           />
-          <textarea
-            className="w-full mb-2 p-2 bg-neutral-800"
-            placeholder="Enter transcription"
-            value={transcription}
-            onChange={(e) => setTranscription(e.target.value)}
-          />
+
           <select
-            className="w-full mb-2 p-2 bg-neutral-800"
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded"
             value={geo}
             onChange={(e) => setGeo(e.target.value)}
           >
-            <option>Spain</option>
-            <option>Mexico</option>
-            <option>Brazil</option>
-            <option>Ukraine</option>
+            <option value="">Select Language/Geo</option>
+            <option value="Ukrainian">Ukrainian</option>
+            <option value="Spanish">Spanish</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Portuguese">Portuguese</option>
+            <option value="Korean">Korean</option>
           </select>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold mb-2">Settings</h2>
+
           <select
-            className="w-full mb-2 p-2 bg-neutral-800"
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-          >
-            <option>Spanish</option>
-            <option>Portuguese</option>
-            <option>Ukrainian</option>
-            <option>English</option>
-          </select>
-          <select
-            className="w-full mb-2 p-2 bg-neutral-800"
-            value={voice}
-            onChange={(e) => setVoice(e.target.value)}
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
           >
             <option value="female">Female</option>
             <option value="male">Male</option>
           </select>
+
           <select
-            className="w-full mb-2 p-2 bg-neutral-800"
-            value={music}
-            onChange={(e) => setMusic(e.target.value)}
+            className="w-full p-2 bg-neutral-800 border border-neutral-700 rounded"
+            value={voice}
+            onChange={(e) => setVoice(e.target.value)}
           >
-            <option value="None">None</option>
-            <option value="Romantic">Romantic</option>
-            <option value="Drama">Drama</option>
+            <option value="">Select Voice</option>
+            <option value="en-US-AriaNeural">Aria (US)</option>
+            <option value="uk-UA-PolinaNeural">Polina (UA)</option>
+            <option value="es-ES-ElviraNeural">Elvira (ES)</option>
+            <option value="ko-KR-SunHiNeural">SunHi (KR)</option>
+            <option value="pt-BR-FranciscaNeural">Francisca (BR)</option>
           </select>
+
+          <button
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded font-semibold"
+            onClick={generateAll}
+            disabled={loading}
+          >
+            {loading ? "Generating..." : "Generate Story"}
+          </button>
         </div>
-      </div>
 
-      <div className="flex gap-4 mt-4">
-        <button onClick={generateText} className="bg-orange-500 px-4 py-2 rounded">
-          Generate Text
-        </button>
-        <button onClick={generateImage} className="bg-blue-500 px-4 py-2 rounded">
-          Generate Image
-        </button>
-        <button onClick={generateVoice} className="bg-green-500 px-4 py-2 rounded">
-          Generate Voice
-        </button>
-      </div>
+        <div className="space-y-4">
+          {story && (
+            <div>
+              <h2 className="text-base font-bold mb-2">Story:</h2>
+              <p className="whitespace-pre-wrap text-sm bg-neutral-800 p-3 rounded border border-neutral-700">
+                {story}
+              </p>
+            </div>
+          )}
 
-      <div className="mt-6">
-        <h3 className="text-lg font-semibold mb-2">Generated Story:</h3>
-        <p className="bg-neutral-800 p-3 whitespace-pre-wrap">{story}</p>
-        {imageUrl && <img src={imageUrl} alt="Generated" className="mt-4 rounded" />}
-        {audioUrl && (
-          <audio controls className="mt-4">
-            <source src={audioUrl} type="audio/mpeg" />
-          </audio>
-        )}
+          {imageUrl && (
+            <div>
+              <h2 className="text-base font-bold mb-2">Image:</h2>
+              <img src={imageUrl} alt="Generated" className="rounded shadow" />
+            </div>
+          )}
+
+          {audioUrl && (
+            <div>
+              <h2 className="text-base font-bold mb-2">Voiceover:</h2>
+              <audio controls className="w-full">
+                <source src={audioUrl} type="audio/mpeg" />
+              </audio>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
