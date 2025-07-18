@@ -1,23 +1,30 @@
-const axios = require('axios');
+const express = require('express');
+const { HfInference } = require('@huggingface/inference');
 
-exports.generateImage = async (req, res) => {
+const router = express.Router();
+const hf = new HfInference(process.env.HUGGINGFACE_API_KEY);
+
+router.post('/generate-image', async (req, res) => {
+  const { prompt } = req.body;
+
   try {
-    const { prompt } = req.body;
-
-    const response = await axios.post(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
-      { inputs: prompt },
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`
-        },
-        responseType: 'arraybuffer'
+    const imageBlob = await hf.textToImage({
+      model: 'stabilityai/stable-diffusion-xl-base-1.0',
+      inputs: prompt,
+      parameters: {
+        width: 1024,
+        height: 576,
+        negative_prompt: 'nsfw, nude, explicit, violence, low quality, blurry, deformed',
       }
-    );
-
-    res.set({ 'Content-Type': 'image/png' });
-    res.send(response.data);
-  } catch (e) {
-    res.status(500).send("Image generation error: " + e.message);
+    });
+    const buffer = await imageBlob.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    const imageUrl = `data:image/png;base64,${base64}`;
+    res.json({ imageUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to generate image' });
   }
-};
+});
+
+module.exports = router;
