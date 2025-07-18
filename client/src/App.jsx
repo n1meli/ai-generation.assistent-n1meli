@@ -18,6 +18,7 @@ function App() {
   const [generatedText, setGeneratedText] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState('');
+  const [error, setError] = useState('');
 
   const languages = [
     'Spanish', 'Russian', 'French', 'Portuguese', 'Italian', 'German', 'Japanese', 'Polish',
@@ -49,27 +50,32 @@ function App() {
   ];
 
   const handleGenerateText = async () => {
+    setError('');
     try {
       const response = await axios.post('/api/generate-text', {
         queueIds, topicReference, transcription, storyTopic, finished, geoReplace, test, refId, refType, language,
       });
       setGeneratedText(response.data.text);
-    } catch (error) {
-      console.error('Error generating text:', error);
+    } catch (err) {
+      setError('Error generating text: ' + err.message);
+      console.error(err);
     }
   };
 
   const handleGenerateImage = async () => {
+    setError('');
     try {
       const prompt = `realistic photo of the main scene or character from the story: ${generatedText.substring(0, 200)}`;
       const response = await axios.post('/api/generate-image', { prompt });
       setGeneratedImage(response.data.imageUrl);
-    } catch (error) {
-      console.error('Error generating image:', error);
+    } catch (err) {
+      setError('Error generating image: ' + err.message);
+      console.error(err);
     }
   };
 
   const handleGenerateVoice = async () => {
+    setError('');
     try {
       const voice = voiceMap[language][voiceGender] || 'es-ES-AlvaroNeural';
       const response = await axios.post('/api/generate-voice', { text: generatedText, voice });
@@ -81,8 +87,9 @@ function App() {
       }
 
       setGeneratedAudio(audioUrl);
-    } catch (error) {
-      console.error('Error generating voice:', error);
+    } catch (err) {
+      setError('Error generating voice: ' + err.message);
+      console.error(err);
     }
   };
 
@@ -166,6 +173,7 @@ function App() {
 
   return (
     <div className="container">
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <div className="flex-container">
         <div className="flex-half">
           <h3>Primary Inputs</h3>
