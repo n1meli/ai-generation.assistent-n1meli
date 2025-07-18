@@ -1,69 +1,75 @@
 body {
-  background-color: #121222;
-  color: white;
-  font-family: sans-serif;
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  font-family: Arial, sans-serif;
   margin: 0;
-  padding: 0;
-}
-
-.container {
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.block {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background-color: #1e1e2f;
   padding: 20px;
-  border-radius: 10px;
 }
 
-.block h3 {
-  margin: 0;
-  font-size: 20px;
-}
-
-input, textarea, select {
-  background-color: #25253d;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-}
-
-textarea {
-  resize: vertical;
-  height: 80px;
-}
-
-.checkboxes {
-  display: flex;
-  gap: 15px;
-}
-
-.checkboxes label {
-  font-size: 14px;
-}
-
-.actions {
-  text-align: center;
+input, select, button, textarea {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+  padding: 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 button {
-  padding: 12px 24px;
-  font-size: 16px;
-  background-color: #0a84ff;
-  color: white;
-  border: none;
-  border-radius: 5px;
   cursor: pointer;
+  background-color: #3a3a3a;
 }
 
-button:disabled {
-  background-color: #555;
-  cursor: wait;
+button:hover {
+  background-color: #4a4a4a;
+}
+
+textarea {
+  height: 100px;
+}
+
+label {
+  margin-right: 10px;
+  display: inline-block;
+  margin: 4px;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.flex-half {
+  width: 48%;
+}
+
+h3 {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+}
+
+.flex-row {
+  display: flex;
+  gap: 8px;
+}
+
+.flex-row > * {
+  flex: 1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.output-section {
+  margin-top: 20px;
 }
