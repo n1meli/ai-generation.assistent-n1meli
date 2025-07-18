@@ -11,50 +11,47 @@ function App() {
   const [test, setTest] = useState(false);
   const [refId, setRefId] = useState('');
   const [refType, setRefType] = useState('');
-  const [geo, setGeo] = useState('English');
+  const [language, setLanguage] = useState('Spanish');
   const [voiceGender, setVoiceGender] = useState('Male');
-  const [backgroundMusic, setBackgroundMusic] = useState('None');
+  const [backgroundMusic, setBackgroundMusic] = useState('Calm');
 
   const [generatedText, setGeneratedText] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState('');
 
-  const geos = [
-    'English', 'Spanish', 'French', 'German', 'Italian',
-    'Portuguese', 'Russian', 'Chinese', 'Japanese', 'Korean',
-    'Arabic', 'Hindi', 'Turkish', 'Ukrainian', 'Polish'
+  const languages = [
+    'Spanish', 'Russian', 'French', 'Portuguese', 'Italian', 'German', 'Japanese', 'Polish',
+    'Arabic', 'Turkish', 'Romanian', 'Korean', 'Dutch', 'Greek', 'Indonesian'
   ];
 
   const voiceMap = {
-    English: { Male: 'en-US-GuyNeural', Female: 'en-US-AriaNeural' },
     Spanish: { Male: 'es-ES-AlvaroNeural', Female: 'es-ES-ElviraNeural' },
-    French: { Male: 'fr-FR-HenriNeural', Female: 'fr-FR-DeniseNeural' },
-    German: { Male: 'de-DE-ConradNeural', Female: 'de-DE-KatjaNeural' },
-    Italian: { Male: 'it-IT-DiegoNeural', Female: 'it-IT-ElsaNeural' },
-    Portuguese: { Male: 'pt-BR-AntonioNeural', Female: 'pt-BR-FranciscaNeural' },
     Russian: { Male: 'ru-RU-DmitryNeural', Female: 'ru-RU-SvetlanaNeural' },
-    Chinese: { Male: 'zh-CN-YunyangNeural', Female: 'zh-CN-XiaoxiaoNeural' },
+    French: { Male: 'fr-FR-HenriNeural', Female: 'fr-FR-DeniseNeural' },
+    Portuguese: { Male: 'pt-BR-AntonioNeural', Female: 'pt-BR-FranciscaNeural' },
+    Italian: { Male: 'it-IT-DiegoNeural', Female: 'it-IT-ElsaNeural' },
+    German: { Male: 'de-DE-ConradNeural', Female: 'de-DE-AmalaNeural' },
     Japanese: { Male: 'ja-JP-KeitaNeural', Female: 'ja-JP-NanamiNeural' },
-    Korean: { Male: 'ko-KR-InJoonNeural', Female: 'ko-KR-SunHiNeural' },
+    Polish: { Male: 'pl-PL-MarekNeural', Female: 'pl-PL-AgnieszkaNeural' },
     Arabic: { Male: 'ar-SA-HamedNeural', Female: 'ar-SA-ZariyahNeural' },
-    Hindi: { Male: 'hi-IN-MadhurNeural', Female: 'hi-IN-SwaraNeural' },
     Turkish: { Male: 'tr-TR-AhmetNeural', Female: 'tr-TR-EmelNeural' },
-    Ukrainian: { Male: 'uk-UA-OstapNeural', Female: 'uk-UA-PolinaNeural' },
-    Polish: { Male: 'pl-PL-MarekNeural', Female: 'pl-PL-ZofiaNeural' },
+    Romanian: { Male: 'ro-RO-EmilNeural', Female: 'ro-RO-AlinaNeural' },
+    Korean: { Male: 'ko-KR-InJoonNeural', Female: 'ko-KR-SunHiNeural' },
+    Dutch: { Male: 'nl-NL-MaartenNeural', Female: 'nl-NL-FennaNeural' },
+    Greek: { Male: 'el-GR-NestorasNeural', Female: 'el-GR-AthinaNeural' },
+    Indonesian: { Male: 'id-ID-ArdiNeural', Female: 'id-ID-GadisNeural' },
   };
 
   const musicOptions = [
-    { name: 'None', url: '' },
-    { name: 'Motivate Me', url: 'https://www.free-stock-music.com/music/mixaund-motivate-me.mp3' },
-    { name: 'Afterglow Love', url: 'https://www.free-stock-music.com/music/fsm-team/escp-afterglow-love.mp3' },
-    { name: 'EGLAIR (Epic)', url: 'https://www.free-stock-music.com/music/alex-productions/cinematic-epic-emotional-eglair.mp3' },
-    { name: 'Happy Days', url: 'https://www.free-stock-music.com/music/fsm-team/happy-days.mp3' },
+    { name: 'Calm', url: 'https://www.free-stock-music.com/music/escp/mp3/escp-sky-mall.mp3' },
+    { name: 'Dramatic', url: 'https://www.free-stock-music.com/music/punch-deck/mp3/punch-deck-100-seconds.mp3' },
+    { name: 'Romantic', url: 'https://www.free-stock-music.com/music/rexlambo/mp3/rexlambo-take-care.mp3' },
   ];
 
   const handleGenerateText = async () => {
     try {
       const response = await axios.post('/api/generate-text', {
-        queueIds, topicReference, transcription, storyTopic, finished, geoReplace, test, refId, refType, geo,
+        queueIds, topicReference, transcription, storyTopic, finished, geoReplace, test, refId, refType, language,
       });
       setGeneratedText(response.data.text);
     } catch (error) {
@@ -64,7 +61,7 @@ function App() {
 
   const handleGenerateImage = async () => {
     try {
-      const prompt = generatedText ? generatedText.substring(0, 200) : storyTopic;
+      const prompt = `realistic photo of the main scene or character from the story: ${generatedText.substring(0, 200)}`;
       const response = await axios.post('/api/generate-image', { prompt });
       setGeneratedImage(response.data.imageUrl);
     } catch (error) {
@@ -74,7 +71,7 @@ function App() {
 
   const handleGenerateVoice = async () => {
     try {
-      const voice = voiceMap[geo][voiceGender] || 'en-US-GuyNeural';
+      const voice = voiceMap[language][voiceGender] || 'es-ES-AlvaroNeural';
       const response = await axios.post('/api/generate-voice', { text: generatedText, voice });
       let audioUrl = response.data.audioUrl;
 
@@ -108,7 +105,7 @@ function App() {
     const musicSource = offlineCtx.createBufferSource();
     musicSource.buffer = musicBuffer;
     const gainNode = offlineCtx.createGain();
-    gainNode.gain.value = 0.3; // Lower volume for background
+    gainNode.gain.value = 0.3;
     musicSource.connect(gainNode);
     gainNode.connect(offlineCtx.destination);
     musicSource.start(0);
@@ -157,7 +154,7 @@ function App() {
 
     for (let i = 0; i < buffer.length; i++) {
       for (let channel = 0; channel < numOfChan; channel++) {
-        let sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+        let sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i] || 0));
         sample = (sample < 0 ? sample * 32768 : sample * 32767) | 0;
         view.setInt16(offset, sample, true);
         offset += 2;
@@ -227,11 +224,11 @@ function App() {
             />
           </div>
           <div className="flex-row">
-            <select value={geo} onChange={(e) => setGeo(e.target.value)}>
+            <select value={language} onChange={(e) => setLanguage(e.target.value)}>
               <option>Choose geo</option>
-              {geos.map((g) => (
-                <option key={g} value={g}>
-                  {g}
+              {languages.map((lang) => (
+                <option key={lang} value={lang}>
+                  {lang}
                 </option>
               ))}
             </select>
@@ -243,11 +240,9 @@ function App() {
           </div>
           <select value={backgroundMusic} onChange={(e) => setBackgroundMusic(e.target.value)}>
             <option>Choose a background music</option>
-            {musicOptions.map((m) => (
-              <option key={m.name} value={m.name}>
-                {m.name}
-              </option>
-            ))}
+            <option value="Calm">Calm</option>
+            <option value="Dramatic">Dramatic</option>
+            <option value="Romantic">Romantic</option>
           </select>
         </div>
       </div>
