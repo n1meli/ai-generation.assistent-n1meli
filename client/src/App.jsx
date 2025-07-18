@@ -1,243 +1,272 @@
-import { useState } from 'react';
-import './App.css';
+import React, { useState } from 'react';
+import axios from 'axios';
 
 function App() {
-  const [prompt, setPrompt] = useState('');
-  const [imagePrompt, setImagePrompt] = useState('');
-  const [language, setLanguage] = useState('en');
-  const [voice, setVoice] = useState('male');
-  const [theme, setTheme] = useState('fantasy');
-  const [isFinished, setIsFinished] = useState(false);
+  const [queueIds, setQueueIds] = useState('');
+  const [topicReference, setTopicReference] = useState('');
+  const [transcription, setTranscription] = useState('');
+  const [storyTopic, setStoryTopic] = useState('');
+  const [finished, setFinished] = useState(false);
   const [geoReplace, setGeoReplace] = useState(false);
-  const [isTest, setIsTest] = useState(false);
+  const [test, setTest] = useState(false);
+  const [refId, setRefId] = useState('');
+  const [refType, setRefType] = useState('');
+  const [geo, setGeo] = useState('English');
+  const [voiceGender, setVoiceGender] = useState('Male');
+  const [backgroundMusic, setBackgroundMusic] = useState('None');
+
   const [generatedText, setGeneratedText] = useState('');
   const [generatedImage, setGeneratedImage] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'fr', name: 'French' },
-    { code: 'de', name: 'German' },
-    { code: 'it', name: 'Italian' },
-    { code: 'pt', name: 'Portuguese' },
-    { code: 'ru', name: 'Russian' },
-    { code: 'zh', name: 'Chinese' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'ko', name: 'Korean' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'bn', name: 'Bengali' },
-    { code: 'th', name: 'Thai' },
-    { code: 'he', name: 'Hebrew' },
-    { code: 'uk', name: 'Ukrainian' },
+  const geos = [
+    'English', 'Spanish', 'French', 'German', 'Italian',
+    'Portuguese', 'Russian', 'Chinese', 'Japanese', 'Korean',
+    'Arabic', 'Hindi', 'Turkish', 'Ukrainian', 'Polish'
   ];
 
-  const themes = ['fantasy', 'sci-fi', 'mystery', 'adventure', 'romance', 'historical'];
+  const voiceMap = {
+    English: { Male: 'en-US-GuyNeural', Female: 'en-US-AriaNeural' },
+    Spanish: { Male: 'es-ES-AlvaroNeural', Female: 'es-ES-ElviraNeural' },
+    French: { Male: 'fr-FR-HenriNeural', Female: 'fr-FR-DeniseNeural' },
+    German: { Male: 'de-DE-ConradNeural', Female: 'de-DE-KatjaNeural' },
+    Italian: { Male: 'it-IT-DiegoNeural', Female: 'it-IT-ElsaNeural' },
+    Portuguese: { Male: 'pt-BR-AntonioNeural', Female: 'pt-BR-FranciscaNeural' },
+    Russian: { Male: 'ru-RU-DmitryNeural', Female: 'ru-RU-SvetlanaNeural' },
+    Chinese: { Male: 'zh-CN-YunyangNeural', Female: 'zh-CN-XiaoxiaoNeural' },
+    Japanese: { Male: 'ja-JP-KeitaNeural', Female: 'ja-JP-NanamiNeural' },
+    Korean: { Male: 'ko-KR-InJoonNeural', Female: 'ko-KR-SunHiNeural' },
+    Arabic: { Male: 'ar-SA-HamedNeural', Female: 'ar-SA-ZariyahNeural' },
+    Hindi: { Male: 'hi-IN-MadhurNeural', Female: 'hi-IN-SwaraNeural' },
+    Turkish: { Male: 'tr-TR-AhmetNeural', Female: 'tr-TR-EmelNeural' },
+    Ukrainian: { Male: 'uk-UA-OstapNeural', Female: 'uk-UA-PolinaNeural' },
+    Polish: { Male: 'pl-PL-MarekNeural', Female: 'pl-PL-ZofiaNeural' },
+  };
+
+  const musicOptions = [
+    { name: 'None', url: '' },
+    { name: 'Motivate Me', url: 'https://www.free-stock-music.com/music/mixaund-motivate-me.mp3' },
+    { name: 'Afterglow Love', url: 'https://www.free-stock-music.com/music/fsm-team/escp-afterglow-love.mp3' },
+    { name: 'EGLAIR (Epic)', url: 'https://www.free-stock-music.com/music/alex-productions/cinematic-epic-emotional-eglair.mp3' },
+    { name: 'Happy Days', url: 'https://www.free-stock-music.com/music/fsm-team/happy-days.mp3' },
+  ];
 
   const handleGenerateText = async () => {
-    setLoading(true);
-    setError('');
     try {
-      const response = await fetch('/api/generate-text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, language, theme, isFinished, geoReplace, isTest }),
+      const response = await axios.post('/api/generate-text', {
+        queueIds, topicReference, transcription, storyTopic, finished, geoReplace, test, refId, refType, geo,
       });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      setGeneratedText(data.text);
-    } catch (err) {
-      setError(err.message);
+      setGeneratedText(response.data.text);
+    } catch (error) {
+      console.error('Error generating text:', error);
     }
-    setLoading(false);
   };
 
   const handleGenerateImage = async () => {
-    setLoading(true);
-    setError('');
     try {
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: imagePrompt, language }),
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      setGeneratedImage(data.imageUrl);
-    } catch (err) {
-      setError(err.message);
+      const prompt = generatedText ? generatedText.substring(0, 200) : storyTopic;
+      const response = await axios.post('/api/generate-image', { prompt });
+      setGeneratedImage(response.data.imageUrl);
+    } catch (error) {
+      console.error('Error generating image:', error);
     }
-    setLoading(false);
   };
 
   const handleGenerateVoice = async () => {
-    setLoading(true);
-    setError('');
     try {
-      const response = await fetch('/api/generate-voice', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: generatedText, voice, language }),
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error);
-      setGeneratedAudio(data.audioUrl);
-    } catch (err) {
-      setError(err.message);
+      const voice = voiceMap[geo][voiceGender] || 'en-US-GuyNeural';
+      const response = await axios.post('/api/generate-voice', { text: generatedText, voice });
+      let audioUrl = response.data.audioUrl;
+
+      const selectedMusic = musicOptions.find(m => m.name === backgroundMusic);
+      if (selectedMusic && selectedMusic.url) {
+        audioUrl = await mixAudioWithMusic(audioUrl, selectedMusic.url);
+      }
+
+      setGeneratedAudio(audioUrl);
+    } catch (error) {
+      console.error('Error generating voice:', error);
     }
-    setLoading(false);
+  };
+
+  const mixAudioWithMusic = async (ttsDataUrl, musicUrl) => {
+    const ttsArrayBuffer = await fetch(ttsDataUrl).then(res => res.arrayBuffer());
+    const musicArrayBuffer = await fetch(musicUrl).then(res => res.arrayBuffer());
+
+    const audioCtx = new AudioContext();
+    const ttsBuffer = await audioCtx.decodeAudioData(ttsArrayBuffer);
+    const musicBuffer = await audioCtx.decodeAudioData(musicArrayBuffer);
+
+    const length = Math.max(ttsBuffer.length, musicBuffer.length);
+    const offlineCtx = new OfflineAudioContext(2, length, audioCtx.sampleRate);
+
+    const ttsSource = offlineCtx.createBufferSource();
+    ttsSource.buffer = ttsBuffer;
+    ttsSource.connect(offlineCtx.destination);
+    ttsSource.start(0);
+
+    const musicSource = offlineCtx.createBufferSource();
+    musicSource.buffer = musicBuffer;
+    const gainNode = offlineCtx.createGain();
+    gainNode.gain.value = 0.3; // Lower volume for background
+    musicSource.connect(gainNode);
+    gainNode.connect(offlineCtx.destination);
+    musicSource.start(0);
+
+    const renderedBuffer = await offlineCtx.startRendering();
+    const wavBuffer = audioBufferToWav(renderedBuffer);
+    const blob = new Blob([wavBuffer], { type: 'audio/wav' });
+    return URL.createObjectURL(blob);
+  };
+
+  const audioBufferToWav = (buffer) => {
+    const numOfChan = buffer.numberOfChannels;
+    const length = buffer.length * numOfChan * 2 + 44;
+    const arrayBuffer = new ArrayBuffer(length);
+    const view = new DataView(arrayBuffer);
+    let offset = 0;
+
+    const writeString = (str) => {
+      for (let i = 0; i < str.length; i++) {
+        view.setUint8(offset++, str.charCodeAt(i));
+      }
+    };
+
+    writeString('RIFF');
+    view.setUint32(offset, length - 8, true);
+    offset += 4;
+    writeString('WAVE');
+    writeString('fmt ');
+    view.setUint32(offset, 16, true);
+    offset += 4;
+    view.setUint16(offset, 1, true);
+    offset += 2;
+    view.setUint16(offset, numOfChan, true);
+    offset += 2;
+    view.setUint32(offset, buffer.sampleRate, true);
+    offset += 4;
+    view.setUint32(offset, buffer.sampleRate * 2 * numOfChan, true);
+    offset += 4;
+    view.setUint16(offset, numOfChan * 2, true);
+    offset += 2;
+    view.setUint16(offset, 16, true);
+    offset += 2;
+    writeString('data');
+    view.setUint32(offset, length - 44, true);
+    offset += 4;
+
+    for (let i = 0; i < buffer.length; i++) {
+      for (let channel = 0; channel < numOfChan; channel++) {
+        let sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[i]));
+        sample = (sample < 0 ? sample * 32768 : sample * 32767) | 0;
+        view.setInt16(offset, sample, true);
+        offset += 2;
+      }
+    }
+
+    return arrayBuffer;
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col items-center p-4">
-      <div className="w-full max-w-3xl space-y-6">
-        {/* Primary Inputs */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Story Prompt</label>
-            <textarea
-              className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="4"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Enter your story prompt..."
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Image Prompt</label>
-            <textarea
-              className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="2"
-              value={imagePrompt}
-              onChange={(e) => setImagePrompt(e.target.value)}
-              placeholder="Enter your image prompt..."
-            />
-          </div>
+    <div className="container">
+      <div className="flex-container">
+        <div className="flex-half">
+          <h3>Primary Inputs</h3>
+          <input
+            type="text"
+            placeholder="Queue of queues IDs e.g., 1,5,17..."
+            value={queueIds}
+            onChange={(e) => setQueueIds(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Enter topic reference"
+            value={topicReference}
+            onChange={(e) => setTopicReference(e.target.value)}
+          />
+          <textarea
+            placeholder="Enter transcription"
+            value={transcription}
+            onChange={(e) => setTranscription(e.target.value)}
+          />
         </div>
-
-        {/* Additional Settings */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Language</label>
-              <select
-                className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-              >
-                {languages.map((lang) => (
-                  <option key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Voice</label>
-              <select
-                className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={voice}
-                onChange={(e) => setVoice(e.target.value)}
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Theme</label>
-            <select
-              className="w-full bg-gray-800 border border-gray-700 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-            >
-              {themes.map((t) => (
-                <option key={t} value={t}>
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex space-x-4">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={isFinished}
-                onChange={(e) => setIsFinished(e.target.checked)}
-              />
+        <div className="flex-half">
+          <h3>Additional Settings</h3>
+          <input
+            type="text"
+            placeholder="Enter story topic"
+            value={storyTopic}
+            onChange={(e) => setStoryTopic(e.target.value)}
+          />
+          <div className="checkbox-group">
+            <label>
+              <input type="checkbox" checked={finished} onChange={(e) => setFinished(e.target.checked)} />
               Finished
             </label>
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={geoReplace}
-                onChange={(e) => setGeoReplace(e.target.checked)}
-              />
-              Geo Replace
+            <label>
+              <input type="checkbox" checked={geoReplace} onChange={(e) => setGeoReplace(e.target.checked)} />
+              Geo replace
             </label>
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                className="mr-2"
-                checked={isTest}
-                onChange={(e) => setIsTest(e.target.checked)}
-              />
+            <label>
+              <input type="checkbox" checked={test} onChange={(e) => setTest(e.target.checked)} />
               Test
             </label>
           </div>
+          <div className="flex-row">
+            <input
+              type="text"
+              placeholder="Ref. ID"
+              value={refId}
+              onChange={(e) => setRefId(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Ref. Type"
+              value={refType}
+              onChange={(e) => setRefType(e.target.value)}
+            />
+          </div>
+          <div className="flex-row">
+            <select value={geo} onChange={(e) => setGeo(e.target.value)}>
+              <option>Choose geo</option>
+              {geos.map((g) => (
+                <option key={g} value={g}>
+                  {g}
+                </option>
+              ))}
+            </select>
+            <select value={voiceGender} onChange={(e) => setVoiceGender(e.target.value)}>
+              <option>Select voice</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+          </div>
+          <select value={backgroundMusic} onChange={(e) => setBackgroundMusic(e.target.value)}>
+            <option>Choose a background music</option>
+            {musicOptions.map((m) => (
+              <option key={m.name} value={m.name}>
+                {m.name}
+              </option>
+            ))}
+          </select>
         </div>
+      </div>
 
-        {/* Buttons */}
-        <div className="flex space-x-4">
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
-            onClick={handleGenerateText}
-            disabled={loading || !prompt}
-          >
-            Generate Text
-          </button>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
-            onClick={handleGenerateImage}
-            disabled={loading || !imagePrompt}
-          >
-            Generate Image
-          </button>
-          <button
-            className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md disabled:opacity-50"
-            onClick={handleGenerateVoice}
-            disabled={loading || !generatedText}
-          >
-            Generate Voice
-          </button>
-        </div>
+      <div style={{ margin: '20px 0' }}>
+        <button onClick={handleGenerateText}>Generate Text</button>
+        <button onClick={handleGenerateImage}>Generate Image</button>
+        <button onClick={handleGenerateVoice}>Generate Voice</button>
+      </div>
 
-        {/* Outputs */}
-        {error && <div className="text-red-500">{error}</div>}
-        {loading && <div className="text-gray-400">Loading...</div>}
-        {generatedText && (
-          <div className="mt-6">
-            <h3 className="text-lg font-medium">Generated Story</h3>
-            <div className="bg-gray-800 p-4 rounded-md">{generatedText}</div>
-          </div>
-        )}
-        {generatedImage && (
-          <div className="mt-6">
-            <h3 className="text-lg font-medium">Generated Image</h3>
-            <img src={generatedImage} alt="Generated" className="w-full rounded-md" />
-          </div>
-        )}
-        {generatedAudio && (
-          <div className="mt-6">
-            <h3 className="text-lg font-medium">Generated Audio</h3>
-            <audio controls src={generatedAudio} className="w-full" />
-          </div>
-        )}
+      <div className="output-section">
+        <h3>Generated Text</h3>
+        <textarea value={generatedText} readOnly style={{ height: '200px' }} />
+
+        <h3>Generated Image</h3>
+        {generatedImage && <img src={generatedImage} alt="Generated Image" style={{ maxWidth: '100%' }} />}
+
+        <h3>Generated Audio</h3>
+        {generatedAudio && <audio controls src={generatedAudio} />}
       </div>
     </div>
   );
